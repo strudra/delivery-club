@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, Button } from "react-native";
+import { StyleSheet, Text, View, Image, Button, Platform } from "react-native";
 
 import { ExpoLinksView } from "expo";
 
@@ -14,12 +14,17 @@ export default class App extends React.Component {
       photoUrl: ""
     }
   }
+  clientId = () => {
+    if (Platform.OS === "android") 
+      return "125304975168-nq6lbk6lsu9pjv9jrcs05u6i90rcfgj0.apps.googleusercontent.com";
+    else if (Platform.OS === "ios")
+      return "125304975168-4v96av0qbt8jj0pc39of8a2maqhmm1sb.apps.googleusercontent.com"; 
+  }
   signIn = async () => {
     try {
       const result = await Expo.Google.logInAsync({
-        androidClientId:
-          "114866498906-vhe0ormjjcsk7gcqgvscjimol6id33nm.apps.googleusercontent.com",
-          scopes: ["profile", "email"]
+        clientId: this.clientId(),
+        scopes: ["profile", "email"]
       })
 
       if (result.type === "success") {
