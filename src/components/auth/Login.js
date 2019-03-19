@@ -1,13 +1,13 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, Button, Platform } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 
 const LoginPage = props => {
   return (
     <View style={styles.loginPage}>
       <Text style={styles.header}>Delivery Club</Text>
-      <View style={styles.loginContainer}>
-        <Button title="Sign in with Google" onPress={() => props.signIn()} />
-      </View>
+      <TouchableOpacity style={styles.loginContainer} onPress={() => props.signIn()}>
+        <Text style={styles.buttonText}>Sign in with Google</Text>
+      </TouchableOpacity>
     </View>
   )
 }
@@ -25,7 +25,6 @@ const LoggedInPage = props => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#16a085",
     alignItems: "center",
     justifyContent: "center"
   },
@@ -48,14 +47,27 @@ const styles = StyleSheet.create({
     marginBottom: 30
   },
   loginContainer: {
-    backgroundColor: "#ecf0f1",
-    padding: 15,
-    width: "80%",
+    backgroundColor: "#fff",
+    padding: 10,
+    width: "85%",
     borderRadius: 20
   },
   loginPage: {
     flex: 1,
-    justifyContent: "space-evenly"
+    width: "100%",
+    justifyContent: "space-evenly",
+    alignItems: "center"
+  },
+  buttonContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  buttonText: {
+    textAlign:"center",
+    fontSize: 16,
+    color: "#2196F3",
+    margin: 10
   }
 });
 

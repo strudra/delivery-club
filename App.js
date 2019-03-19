@@ -13,7 +13,7 @@ export default class App extends React.Component {
       name: "",
       photoUrl: "",
       googleToken: "",
-      userId: "id",
+      userId: "N/A",
     }
 
     this.restUrl = "https://deliveryclubsp.herokuapp.com/api/v1/graphql";
@@ -45,7 +45,7 @@ export default class App extends React.Component {
           googleToken: result.idToken
         });
         console.log(result);
-        this.fetchUserId();
+        this.backendGoogleLogin();
       } else {
         console.log("cancelled")
       }
@@ -54,33 +54,64 @@ export default class App extends React.Component {
     }
   }
 
-fetchUserId = async () => {
-  try {
-    console.log(this.restUrl);
-    const result = await fetch(this.restUrl, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: "query {consumerLoginGoogle{user_id}}",
-          token: this.state.googleToken
-        })
+  backendGoogleLogin = async () => {
+    try {
+      const result = await fetch(this.restUrl, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query: "query {consumerLoginGoogle{user_id}}",
+            token: this.state.googleToken
+          })
+        }
+      );
+      
+      responseJson = await result.json();
+      if (result.ok) {
+        this.setState({
+          userId: responseJson.data.consumerLoginGoogle.user_id
+        });
+      } else {
+        // probably can't sign in because not registered
+        // try to register
+        console.log(responseJson.errors);
+        this.backendGoogleSignUp();
       }
-    );
-    
-    responseJson = await result.json();
-    console.log(responseJson);
-    if (result.ok) {
-      this.setState({
-        userId: responseJson.data.consumerLoginGoogle.user_id
-      });
+    } catch (e) {
+      console.log("error", e)
     }
-  } catch (e) {
-    console.log("error", e)
   }
-}
+
+  backendGoogleSignUp = async () => {
+    try {
+      const result = await fetch(this.restUrl, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query: "mutation {createConsumerGoogle{_id}}",
+            token: this.state.googleToken
+          })
+        }
+      );
+      
+      responseJson = await result.json();
+      if (result.ok) {
+        this.setState({
+          userId: responseJson.data.createConsumerGoogle._id
+        });
+      } else {
+        console.log(responseJson.errors);
+      }
+    } catch (e) {
+      console.log("error", e);
+    }
+  }
 
   render() {
     return (
@@ -99,7 +130,7 @@ fetchUserId = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#16a085",
+    backgroundColor: "#8BC34A",
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column"
