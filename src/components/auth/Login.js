@@ -1,14 +1,29 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
+import { Body, Header, Content, Container, Text, Button } from "native-base";
+
+const StylizedButton = props => {
+  return (
+    <TouchableOpacity style={styles.loginContainer} onPress={() => props.onPress()}>
+      <Text style={styles.buttonText}>{props.text}</Text>
+    </TouchableOpacity>
+  );
+}
 
 const LoginPage = props => {
   return (
-    <View style={styles.loginPage}>
-      <Text style={styles.header}>Delivery Club</Text>
-      <TouchableOpacity style={styles.loginContainer} onPress={() => props.signIn()}>
-        <Text style={styles.buttonText}>Sign in with Google</Text>
-      </TouchableOpacity>
-    </View>
+      <Container style={styles.loginPage}>
+        <Text style={styles.header}>Delivery Club</Text>
+        {/*<StylizedButton onPress={() => props.signIn()} text="Sign in with Google" />*/}
+        <View style={styles.buttonContainer}>
+          <Button light style={styles.button} onPress={() => props.signIn()}>
+            <Text style={styles.buttonText}>Sign in as Consumer</Text>
+          </Button>
+          <Button light style={styles.button} onPress={() => props.signIn()}>
+            <Text style={styles.buttonText}>Sign in as Producer</Text>
+          </Button>
+        </View>
+      </Container>
   )
 }
 
@@ -17,7 +32,8 @@ const LoggedInPage = props => {
     <View style={styles.container}>
       <Image style={styles.image} source={{ uri: props.photoUrl }} />
       <Text style={styles.header}>{props.name}</Text>
-      <Text style={styles.subtitle}>user_id: {props.userId}</Text>
+      <Text style={styles.subtitle}>status: {props.userId}</Text>
+      <StylizedButton onPress={() => props.logOut()} text="Logout" />
     </View>
   )
 }
@@ -56,19 +72,23 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     justifyContent: "space-evenly",
+    alignItems: "center",
+    backgroundColor: "#8BC34A",
+  },
+  button: {
+    margin: 5,
+    width: "100%",
+    alignSelf: "center",
     alignItems: "center"
   },
   buttonContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center"
+    width: "70%",
+    alignItems: "center",
   },
   buttonText: {
     textAlign:"center",
-    fontSize: 16,
-    color: "#2196F3",
-    margin: 10
-  }
+    flex: 1
+  },
 });
 
 export {LoginPage, LoggedInPage};

@@ -1,9 +1,11 @@
 import React from "react";
 import { StyleSheet, Text, View, Image, Button, Platform } from "react-native";
-import ApolloClient from "apollo-boost"
+import ApolloClient from "apollo-boost";
+import { Container } from "native-base";
 
 import Logo from './src/Logo';
 import { LoggedInPage, LoginPage } from "./src/components/auth/Login";
+import DishForm from "./src/components/dish-crud/DishForm"
 
 export default class App extends React.Component {
   constructor(props) {
@@ -13,7 +15,7 @@ export default class App extends React.Component {
       name: "",
       photoUrl: "",
       googleToken: "",
-      userId: "N/A",
+      status: "logged out",
     }
 
     this.restUrl = "https://deliveryclubsp.herokuapp.com/api/v1/graphql";
@@ -72,7 +74,7 @@ export default class App extends React.Component {
       responseJson = await result.json();
       if (result.ok) {
         this.setState({
-          userId: responseJson.data.consumerLoginGoogle.user_id
+          status: responseJson.data.consumerLoginGoogle.user_id
         });
       } else {
         // probably can't sign in because not registered
@@ -103,7 +105,7 @@ export default class App extends React.Component {
       responseJson = await result.json();
       if (result.ok) {
         this.setState({
-          userId: responseJson.data.createConsumerGoogle._id
+          status: responseJson.data.createConsumerGoogle._id
         });
       } else {
         console.log(responseJson.errors);
@@ -113,16 +115,31 @@ export default class App extends React.Component {
     }
   }
 
+  logOut = () => {
+    this.setState({
+      signedIn: false,
+      status: "logged out",
+      googleToken: ""
+    });
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-      {/*<Logo/>*/}
-        {this.state.signedIn ? (
-          <LoggedInPage name={this.state.name} photoUrl={this.state.photoUrl} userId={this.state.userId} />
+      <Container>
+        <DishForm />
+      {/*<View style={styles.container}>
+      <Logo/>*/}
+        {/*this.state.signedIn ? (
+          <LoggedInPage
+            name={this.state.name}
+            photoUrl={this.state.photoUrl}
+            userId={this.state.status}
+            logOut={this.logOut}
+          />
         ) : (
           <LoginPage signIn={this.signIn} />
-        )}
-      </View>
+        )*/}
+      </Container>
     )
   }
 }
