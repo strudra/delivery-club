@@ -2,37 +2,78 @@ import React, { Component } from 'react';
 import { StyleSheet, View } from "react-native";
 import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, Label, Body, Title, Button, Text, ListItem, CheckBox } from 'native-base';
 
-const getCategories = () => {
-  return (
-    <Content>
-      <ListItem>
-        <CheckBox />
-        <Body>
-          <Text>Breakfast</Text>
-        </Body>
-      </ListItem>
-      <ListItem>
-        <CheckBox />
-        <Body>
-          <Text>Lunch</Text>
-        </Body>
-      </ListItem>
-      <ListItem>
-        <CheckBox />
-        <Body>
-          <Text>Dinner</Text>
-        </Body>
-      </ListItem>
-    </Content>
-  );
-};
-
 export default class DishForm extends Component {
   constructor() {
     super();
     this.state = {
-      mode: 1 // 0 for create, 1 for edit
+      mode: 1, // 0 for create, 1 for edit
+      dishName: "",
+      dishDescription: "",
+      dishPrice: "0",
+      activeCheckbox: []
     };
+  }
+
+  handleCheckBoxPressed = val => {
+    if (this.state.activeCheckbox.includes(val)) {
+      this.setState(prevState => {
+        return {
+          activeCheckbox: prevState.activeCheckbox.filter((v) => {
+            return v !== val;
+          })
+        }
+      });
+    } else {
+      this.setState(prevState => {
+        return {
+          activeCheckbox: prevState.activeCheckbox.concat([val])
+        }
+      });
+    }
+  }
+
+  getData = () => ["Cold", "Hot", "Drinks", "Snacks", "Fast food", "Dessert", "Healthy"];
+
+  getDataList = () => this.getData().map((val, i) => (
+    <ListItem key={i} onPress={() => this.handleCheckBoxPressed(val)}>
+      <CheckBox 
+        checked={this.state.activeCheckbox.includes(val)}
+        onPress={() => this.handleCheckBoxPressed(val)}/>
+      <Body>
+        <Text>{val}</Text>
+      </Body>
+    </ListItem>
+  ));
+
+  getCategories = () => {
+    return (
+      <Content>
+        {this.getDataList()}
+      </Content>
+    );
+  };
+
+  handleDishNameChange = val => {
+    this.setState({
+      dishName: val
+    });
+  }
+
+  handleDishDescriptionChange = val => {
+    this.setState({
+      dishDescription: val
+    });
+  }
+
+  handleDishPriceChange = val => {
+    this.setState({
+      dishPrice: val
+    });
+  }
+
+  parsePrice = str => {
+    str.replace(",", ".0");
+    return str;
   }
 
   render() {
@@ -47,23 +88,31 @@ export default class DishForm extends Component {
         <Tab heading={ <TabHeading><Text>Basic Info</Text></TabHeading>}>
           <Content>
             <Form>
-              <Item floatingLabel>
+              <Item stackedLabel>
                 <Label>Name</Label>
-                <Input />
+                <Input 
+                  value={this.state.dishName}
+                  onChangeText={this.handleDishNameChange}/>
               </Item>
-              <Item floatingLabel>
+              <Item stackedLabel>
                 <Label>Description</Label>
-                <Input multiline />
+                <Input 
+                  multiline 
+                  value={this.state.dishDescription}
+                  onChangeText={this.handleDishDescriptionChange}/>
               </Item>
-              <Item floatingLabel last>
+              <Item stackedLabel last>
                 <Label>Price</Label>
-                <Input keyboardType="numeric" />
+                <Input 
+                  keyboardType="numeric" 
+                  value={this.state.dishPrice}
+                  onChangeText={this.handleDishPriceChange}/>
               </Item>
             </Form>
           </Content>
         </Tab>
         <Tab heading={ <TabHeading><Text>Categories</Text></TabHeading>}>
-          {getCategories()}
+          {this.getCategories()}
         </Tab>
       </Tabs>
       <View style={styles.buttons}>
