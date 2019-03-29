@@ -32,7 +32,7 @@ export default class App extends React.Component {
       return "125304975168-4v96av0qbt8jj0pc39of8a2maqhmm1sb.apps.googleusercontent.com"; 
   }
 
-  signIn = async () => {
+  signIn = async (userType) => {
     try {
       const result = await Expo.Google.logInAsync({
         clientId: this.clientId(),
@@ -47,7 +47,7 @@ export default class App extends React.Component {
           googleToken: result.idToken
         });
         console.log(result);
-        this.backendGoogleLogin();
+        this.backendGoogleLogin(userType);
       } else {
         console.log("cancelled")
       }
@@ -56,8 +56,9 @@ export default class App extends React.Component {
     }
   }
 
-  backendGoogleLogin = async () => {
+  backendGoogleLogin = async (userType) => {
     try {
+      loginQuery = userType === 0 ? "query {consumerLoginGoogle{user_id}}" : "query {producerLoginGoogle{user_id}}";
       const result = await fetch(this.restUrl, {
           method: 'POST',
           headers: {
@@ -65,7 +66,7 @@ export default class App extends React.Component {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            query: "query {consumerLoginGoogle{user_id}}",
+            query: loginQuery,
             token: this.state.googleToken
           })
         }
@@ -126,7 +127,12 @@ export default class App extends React.Component {
   render() {
     return (
       <Container>
-        <DishForm />
+        <DishForm 
+          mode={1}
+          title="Grecha"
+          description="No way this is the best grecha you've ever tried. Buy now!"
+          price="135"
+          categories={["Hot", "Healthy", "Russian"]} />
       {/*<View style={styles.container}>
       <Logo/>*/}
         {/*this.state.signedIn ? (

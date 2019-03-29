@@ -3,14 +3,14 @@ import { StyleSheet, View } from "react-native";
 import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, Label, Body, Title, Button, Text, ListItem, CheckBox } from 'native-base';
 
 export default class DishForm extends Component {
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
-      mode: 1, // 0 for create, 1 for edit
-      dishName: "",
-      dishDescription: "",
-      dishPrice: "0",
-      activeCheckbox: []
+      mode: props.mode ? props.mode : 0, // 0 for create, 1 for edit
+      dishName: props.title ? props.title : "",
+      dishDescription: props.description ? props.description : "",
+      dishPrice: props.price ? props.price : "",
+      activeCheckbox: props.categories ? props.categories : [],
     };
   }
 
@@ -32,7 +32,8 @@ export default class DishForm extends Component {
     }
   }
 
-  getData = () => ["Cold", "Hot", "Drinks", "Snacks", "Fast food", "Dessert", "Healthy"];
+  getData = () => ["Cold", "Hot", "Drinks", "Snacks", "Fast food", "Dessert", "Healthy", "Russian", "Serbian",
+                   "Nepali", "Ukrainian", "Italian", "French", "Spanish", "Fruits", "Vegetables"];
 
   getDataList = () => this.getData().map((val, i) => (
     <ListItem key={i} onPress={() => this.handleCheckBoxPressed(val)}>
