@@ -17,6 +17,7 @@ export default class App extends React.Component {
       photoUrl: "",
       googleToken: "",
       status: "logged out",
+      userType: 0
     }
 
     this.restUrl = "https://deliveryclubsp.herokuapp.com/api/v1/graphql";
@@ -34,6 +35,9 @@ export default class App extends React.Component {
   }
 
   signIn = async (userType) => {
+    this.setState({
+      userType: userType
+    });
     try {
       const result = await Expo.Google.logInAsync({
         clientId: this.clientId(),
@@ -76,21 +80,22 @@ export default class App extends React.Component {
       responseJson = await result.json();
       if (result.ok) {
         this.setState({
-          status: responseJson.data.consumerLoginGoogle.user_id
+          status: userType === 0 ? responseJson.data.consumerLoginGoogle.user_id : responseJson.data.producerLoginGoogle.user_id
         });
       } else {
         // probably can't sign in because not registered
         // try to register
         console.log(responseJson.errors);
-        this.backendGoogleSignUp();
+        this.backendGoogleSignUp(userType);
       }
     } catch (e) {
       console.log("login error", e)
     }
   }
 
-  backendGoogleSignUp = async () => {
+  backendGoogleSignUp = async (userType) => {
     try {
+      query = userType === 0 ? "mutation {createConsumerGoogle{_id}}" : "mutation {createProducerGoogle{_id}}";
       const result = await fetch(this.restUrl, {
           method: 'POST',
           headers: {
@@ -98,7 +103,7 @@ export default class App extends React.Component {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            query: "mutation {createConsumerGoogle{_id}}",
+            query: query,
             token: this.state.googleToken
           })
         }
@@ -107,7 +112,7 @@ export default class App extends React.Component {
       responseJson = await result.json();
       if (result.ok) {
         this.setState({
-          status: responseJson.data.createConsumerGoogle._id
+          status: userType === 0 ? responseJson.data.createConsumerGoogle._id : responseJson.data.createProducerGoogle._id
         });
       } else {
         console.log(responseJson.errors);

@@ -14,7 +14,7 @@ export default class DishList extends Component {
   getList = async () => {
     try {
       body = JSON.stringify({
-        query: "query {dishes{ _id name description categories {name} creator {email} }}",
+        query: "query {dishes{ _id name description price categories {name} creator {email} }}",
         token: this.props.googleToken
       });
       console.log(body);
@@ -57,6 +57,7 @@ export default class DishList extends Component {
         <Text>ID: {val._id}</Text>
         <Text>Name: {val.name}</Text>
         <Text>Description: {val.description}</Text>
+        <Text>Price: ${val.price}</Text>
         <Text>Creator: {val.creator.email}</Text>
       </Body>
     </ListItem>
