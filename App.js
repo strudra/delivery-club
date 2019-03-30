@@ -6,6 +6,7 @@ import { Container } from "native-base";
 import Logo from './src/Logo';
 import { LoggedInPage, LoginPage } from "./src/components/auth/Login";
 import DishForm from "./src/components/dish-crud/DishForm"
+import DishList from "./src/components/dish-crud/DishList"
 
 export default class App extends React.Component {
   constructor(props) {
@@ -52,7 +53,7 @@ export default class App extends React.Component {
         console.log("cancelled")
       }
     } catch (e) {
-      console.log("error", e)
+      console.log("sign in error", e)
     }
   }
 
@@ -84,7 +85,7 @@ export default class App extends React.Component {
         this.backendGoogleSignUp();
       }
     } catch (e) {
-      console.log("error", e)
+      console.log("login error", e)
     }
   }
 
@@ -112,7 +113,7 @@ export default class App extends React.Component {
         console.log(responseJson.errors);
       }
     } catch (e) {
-      console.log("error", e);
+      console.log("sign up error", e);
     }
   }
 
@@ -127,24 +128,19 @@ export default class App extends React.Component {
   render() {
     return (
       <Container>
-        <DishForm 
+        {/*<DishForm 
           mode={1}
           title="Grecha"
           description="No way this is the best grecha you've ever tried. Buy now!"
           price="135"
-          categories={["Hot", "Healthy", "Russian"]} />
+        categories={["hot", "healthy", "russian"]} />*/}
       {/*<View style={styles.container}>
       <Logo/>*/}
-        {/*this.state.signedIn ? (
-          <LoggedInPage
-            name={this.state.name}
-            photoUrl={this.state.photoUrl}
-            userId={this.state.status}
-            logOut={this.logOut}
-          />
+        {this.state.signedIn ? (
+          <DishList url={this.restUrl} googleToken={this.state.googleToken} />
         ) : (
           <LoginPage signIn={this.signIn} />
-        )*/}
+        )}
       </Container>
     )
   }

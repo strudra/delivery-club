@@ -19,21 +19,21 @@ export default class DishForm extends Component {
       this.setState(prevState => {
         return {
           activeCheckbox: prevState.activeCheckbox.filter((v) => {
-            return v !== val;
+            return lowerCase(v) !== lowerCase(val);
           })
         }
       });
     } else {
       this.setState(prevState => {
         return {
-          activeCheckbox: prevState.activeCheckbox.concat([val])
+          activeCheckbox: prevState.activeCheckbox.concat([lowerCase(val)])
         }
       });
     }
   }
 
-  getData = () => ["Cold", "Hot", "Drinks", "Snacks", "Fast food", "Dessert", "Healthy", "Russian", "Serbian",
-                   "Nepali", "Ukrainian", "Italian", "French", "Spanish", "Fruits", "Vegetables"];
+  getData = () => ["cold", "hot", "drinks", "snacks", "fast food", "dessert", "healthy", "russian", "serbian",
+                   "nepali", "ukrainian", "italian", "french", "spanish", "fruits", "vegetables"];
 
   getDataList = () => this.getData().map((val, i) => (
     <ListItem key={i} onPress={() => this.handleCheckBoxPressed(val)}>
