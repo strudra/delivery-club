@@ -1,13 +1,22 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from "react-native";
-import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, Label, Body, Title, Button, List, Text, ListItem, CheckBox } from 'native-base';
+import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, Label, Body, Title, Button, List, Text, ListItem, CheckBox, Right, Left } from 'native-base';
+
+import DishForm from "./DishForm";
 
 export default class DishList extends Component {
 	constructor(props) {
 		super();
 		this.state = {
       list: [],
-      loaded: 0
+      loaded: 0,
+      form: 0,
+      chosen: -1,
+      email: "",
+      dishName: "",
+      dishDescription: "",
+      dishPrice: 0,
+      dishId: ""
     };
   }
   
@@ -52,34 +61,94 @@ export default class DishList extends Component {
   }
 
   getDishList = () => this.state.list.map((val, i) => (
-    <ListItem key={i} onPress={() => {}}>
-      <Body>
-        <Text>ID: {val._id}</Text>
-        <Text>Name: {val.name}</Text>
-        <Text>Description: {val.description}</Text>
-        <Text>Price: ${val.price}</Text>
-        <Text>Creator: {val.creator.email}</Text>
-      </Body>
+    <ListItem key={i} onPress={() => {
+      this.setState((prev) => {
+        chosen: prev.chosen === i ? -1 : i
+      });
+    }}>
+      {this.state.chosen === i ? (
+        <Body>
+          <Text>ID: {val._id}</Text>
+          <Text>Name: {val.name}</Text>
+          <Text>Description: {val.description}</Text>
+          <Text>Price: ${val.price}</Text>
+          <Text>Creator: {val.creator.email}</Text>
+          {this.props.email === val.creator.email ? (
+            <Button onPress={() => this.editDish(val._id, val.name, val.description,
+              val.price, [])}>
+              <Text>Edit</Text>
+            </Button>
+          ) : {}}
+        </Body>
+      ) : (
+        <Body>
+          <Text>{val.name}</Text>
+        </Body>
+      )}
     </ListItem>
   ));
 
+  editDish = (id, name, description, price, categories) => {
+    this.setState({
+      dishId: id,
+      dishName: name,
+      dishDescription: description,
+      dishPrice: price,
+      form: 2
+    });
+  };
+
+  createDish = () => {
+    this.setState({
+      dishId: -1,
+      dishName: "",
+      dishDescription: "",
+      dishPrice: 0,
+      form: 1
+    });
+  }
+
   render() {
     return (
+      this.state.form === 0 ? (
       <Container>
         <Header>
+          <Left />
           <Body>
             <Title>Dishes</Title>
           </Body>
+          <Right>
+            <Button hasText transparent onPress={() => {
+              this.createDish();
+            }}>
+              <Text>Create</Text>
+            </Button>
+          </Right>
         </Header>
-        <Content>
-          <List>
-            {this.props.googleToken !== undefined ? 
-              this.state.loaded !== 0 ? 
-              this.getDishList() : (<Text style={{ flex:1, textAlign: "center" }}>loading...</Text>) : 
-              (<Text>no google token available</Text>)}
-          </List>
-        </Content>
+        {this.state.loaded !== 0 && this.state.list.length === 0 ? (
+          <Container>
+            <Text style={{ flex:1, textAlign: "center" }}>No dishes</Text>
+          </Container>
+        ) : (
+          <Content>
+            <List>
+              {this.props.googleToken !== undefined ? 
+                this.state.loaded !== 0 ? 
+                this.getDishList() : (<Text style={{ flex:1, textAlign: "center" }}>loading...</Text>) : 
+                (<Text>no google token available</Text>)}
+            </List>
+          </Content>
+        )}
       </Container>
-    );
+      ) : (
+        <DishForm
+          mode={this.state.form === 1 ? 0 : 1}
+          googleToken={this.props.googleToken}
+          url={this.props.url}
+          title={this.state.dishName}
+          description={this.state.dishDescription}
+          price={this.state.dishName}
+          id={this.state.dishId}/>
+      ));
   }
 }

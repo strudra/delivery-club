@@ -17,7 +17,8 @@ export default class App extends React.Component {
       photoUrl: "",
       googleToken: "",
       status: "logged out",
-      userType: 0
+      userType: 0,
+      email: ""
     }
 
     this.restUrl = "https://deliveryclubsp.herokuapp.com/api/v1/graphql";
@@ -49,7 +50,8 @@ export default class App extends React.Component {
           signedIn: true,
           name: result.user.name,
           photoUrl: result.user.photoUrl,
-          googleToken: result.idToken
+          googleToken: result.idToken,
+          email: result.user.email
         });
         console.log(result);
         this.backendGoogleLogin(userType);
@@ -142,7 +144,7 @@ export default class App extends React.Component {
       {/*<View style={styles.container}>
       <Logo/>*/}
         {this.state.signedIn ? (
-          <DishList url={this.restUrl} googleToken={this.state.googleToken} />
+          <DishList email={this.state.email} url={this.restUrl} googleToken={this.state.googleToken} />
         ) : (
           <LoginPage signIn={this.signIn} />
         )}

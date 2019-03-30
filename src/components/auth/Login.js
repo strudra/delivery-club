@@ -12,18 +12,17 @@ const StylizedButton = props => {
 
 const LoginPage = props => {
   return (
-      <Container style={styles.loginPage}>
-        <Text style={styles.header}>Delivery Club</Text>
-        {/*<StylizedButton onPress={() => props.signIn()} text="Sign in with Google" />*/}
-        <View style={styles.buttonContainer}>
-          <Button light style={styles.button} onPress={() => props.signIn(0)}>
-            <Text style={styles.buttonText}>Sign in as Consumer</Text>
-          </Button>
-          <Button light style={styles.button} onPress={() => props.signIn(1)}>
-            <Text style={styles.buttonText}>Sign in as Producer</Text>
-          </Button>
-        </View>
-      </Container>
+    <Container style={styles.loginPage}>
+      <Text style={styles.header}>Delivery Club</Text>
+      <View style={styles.buttonContainer}>
+        <Button light style={styles.button} onPress={() => props.signIn(0)}>
+          <Text style={styles.buttonText}>Sign in as Consumer</Text>
+        </Button>
+        <Button light style={styles.button} onPress={() => props.signIn(1)}>
+          <Text style={styles.buttonText}>Sign in as Producer</Text>
+        </Button>
+      </View>
+    </Container>
   )
 }
 

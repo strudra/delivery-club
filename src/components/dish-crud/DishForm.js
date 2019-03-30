@@ -11,6 +11,8 @@ export default class DishForm extends Component {
       dishDescription: props.description ? props.description : "",
       dishPrice: props.price ? props.price : "",
       activeCheckbox: props.categories ? props.categories : [],
+      dishId: props.id ? props.id : -1,
+      buttonsActive: true
     };
   }
 
@@ -73,8 +75,68 @@ export default class DishForm extends Component {
   }
 
   parsePrice = str => {
-    str.replace(",", ".0");
+    str.replace(",", ".");
     return str;
+  }
+
+  sendQuery = async (token, query, callback) => {
+    try {
+      body = JSON.stringify({
+        query: query,
+        token: token
+      });
+      console.log(body);
+      const result = await fetch(this.props.url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: body
+        }
+      );
+      
+      responseJson = await result.json();
+      if (result.ok) {
+        console.log(responseJson.data.dishes);
+        callback(responseJson.data);
+      } else {
+        console.log(responseJson.errors);
+      }
+    } catch (e) {
+      console.log("error", query, e);
+    }
+  }
+
+  createDish = async () => {
+    this.setState({buttonsActive: false});
+    query = `mutation { createDish (dishInput: {name: "${this.state.dishName}",` + 
+      `description: "${this.state.dishDescription}",` +
+      `price: ${Number.parseFloat(this.state.dishPrice)}, }) { _id }}`;
+    console.log(query);
+    this.sendQuery(this.props.googleToken, query, (val) => {
+      console.log(val);
+    });
+  }
+
+  updateDish = async () => {
+    this.setState({buttonsActive: false});
+    query = `mutation { updateDish (dishId: ${this.state.id}, dishInput: {name: "${this.state.dishName}",` + 
+      `description: "${this.state.dishDescription}",` +
+      `price: ${Number.parseFloat(this.state.dishPrice)}, }) { _id }}`;
+    console.log(query);
+    this.sendQuery(this.props.googleToken, query, (val) => {
+      console.log(val);
+    });
+  }
+
+  removeDish = async () => {
+    this.setState({buttonsActive: false});
+    query = `mutation { removeDish (dishId: ${this.state.id}) { _id }}`;
+    console.log(query);
+    this.sendQuery(this.props.googleToken, query, (val) => {
+      console.log(val);
+    });
   }
 
   render() {
@@ -117,13 +179,18 @@ export default class DishForm extends Component {
         </Tab>
       </Tabs>
       <View style={styles.buttons}>
-        <Button success style={styles.button}>
+        <Button success style={styles.button} disabled={this.state.buttonsActive === false} onPress={() => {
+          if (this.state.mode === 0) this.createDish();
+          else this.updateDish();
+        }}>
           <Text style={styles.buttonText}>{this.state.mode === 0 ? "Create" : "Save"}</Text>
         </Button>
         {this.state.mode === 1 ? (<View style={{ width: "5%" }} />) : null}
         {
           this.state.mode === 1 ? (
-            <Button danger style={styles.button}>
+            <Button danger style={styles.button} disabled={this.state.buttonsActive === false} onPress={() => {
+              this.removeDish();
+            }}>
               <Text style={styles.buttonText}>Delete</Text>
             </Button>) : null
         }
