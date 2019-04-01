@@ -13,7 +13,7 @@ See deployment for notes on how to deploy the project on a live system.
   ## Prerequisites
   In order to develop and/or test this project you will need to install several dependencies:
   1. Install Expo CLI utility: `npm install -g expo-cli`
-  2. Run `yarn install` in the root directory of the project to fetch and install other dependencies, after that you should be ale to run the project
+  2. Run `yarn install` in the root directory of the project to fetch and install other dependencies, after that you should be able to run the project
   3. Install Expo Client application from [Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=www) or [App Store](https://itunes.apple.com/app/apple-store/id982107779)
   ## Running
   To start the environment, you need to run `expo start` in the project directory, a window will open in your browser. Then use Expo Client on one of your mobile devices to connect to the Expo environment. I suggest choosing LAN on the dashboard page, since it's the fastest way, you will have to be on the same Wi-Fi network though.
