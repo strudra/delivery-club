@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from "react-native";
-import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, Label, Body, Title, Button, List, Text, ListItem, CheckBox, Right, Left } from 'native-base';
+import { Container, Header, Content, Body, Title, Button, List, Text, ListItem, CheckBox, Right, Left } from 'native-base';
 
 import DishForm from "./DishForm";
 
@@ -16,14 +16,15 @@ export default class DishList extends Component {
       dishName: "",
       dishDescription: "",
       dishPrice: 0,
-      dishId: ""
+      dishId: "",
+      categories: []
     };
   }
   
   getList = async () => {
     try {
       body = JSON.stringify({
-        query: "query {dishes{ _id name description price categories {name} creator {email} }}",
+        query: "query {dishes{ _id name description price categories {name, _id} creator {email} }}",
         token: this.props.googleToken
       });
       console.log(body);
@@ -51,7 +52,7 @@ export default class DishList extends Component {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.getList()
     .then(() => {
       this.setState({
@@ -77,9 +78,10 @@ export default class DishList extends Component {
           <Text>Description: {val.description}</Text>
           <Text>Price: ${val.price}</Text>
           <Text>Creator: {val.creator.email}</Text>
+          <Text>Categories: {JSON.stringify(val.categories)}</Text>
           {this.props.email === val.creator.email && this.props.user === 1 ? (
             <Button onPress={() => this.editDish(val._id, val.name, val.description,
-              val.price, [])}>
+              val.price, val.categories)}>
               <Text>Edit</Text>
             </Button>
           ) : (null)}
@@ -94,12 +96,14 @@ export default class DishList extends Component {
 
   editDish = (id, name, description, price, categories) => {
     console.log("dishid from list " + id);
+    console.log(categories)
     this.setState({
       dishId: id,
       dishName: name,
       dishDescription: description,
       dishPrice: price,
-      form: 2
+      form: 2,
+      categories: categories
     });
   };
 
@@ -109,7 +113,20 @@ export default class DishList extends Component {
       dishName: "",
       dishDescription: "",
       dishPrice: 0,
-      form: 1
+      form: 1,
+      categories: []
+    });
+  }
+
+  update = () => {
+    this.setState({
+      loaded: 0
+    });
+    this.getList()
+    .then(() => {
+      this.setState({
+        loaded: 1
+      });
     });
   }
 
@@ -124,12 +141,7 @@ export default class DishList extends Component {
         form: 0,
         loaded: 0
       });
-      this.getList()
-      .then(() => {
-        this.setState({
-          loaded: 1
-        });
-      });
+      this.update();
     }
   }
 
@@ -170,6 +182,13 @@ export default class DishList extends Component {
           </List>
         </Content>
       )}
+      <View style={styles.buttons}>
+        <Button bordered success style={styles.button} disabled={this.state.loaded === 0} onPress={() => {
+          this.update();
+        }}>
+          <Text style={styles.buttonText}>Update</Text>
+        </Button>
+      </View>
       </Container>
       )
     } else {
@@ -182,8 +201,24 @@ export default class DishList extends Component {
         description={this.state.dishDescription}
         price={this.state.dishPrice.toString()}
         id={this.state.dishId}
-        close={this.closeForm}/>
+        close={this.closeForm}
+        categories={this.state.categories}/>
       )
     }
   }
 }
+
+const styles = StyleSheet.create({
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    margin: "5%",
+  },
+  button: {
+    flex: 1
+  },
+  buttonText: {
+    flex: 1,
+    textAlign: "center"
+  }
+});

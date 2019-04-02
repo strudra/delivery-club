@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from "react-native";
-import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, Label, Body, Title, Button, Text, ListItem, CheckBox, Left, Right } from 'native-base';
+import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, 
+  Label, Body, Title, Button, Text, ListItem, CheckBox, Left, Right } from 'native-base';
 
 export default class DishForm extends Component {
   constructor(props) {
@@ -10,43 +11,44 @@ export default class DishForm extends Component {
       dishName: props.title ? props.title : "",
       dishDescription: props.description ? props.description : "",
       dishPrice: props.price ? props.price : "",
-      activeCheckbox: props.categories ? props.categories : [],
+      activeCheckbox: [],
       dishId: props.id ? props.id : -1,
-      buttonsActive: true
+      buttonsActive: true,
+      categories: []
     };
   }
 
+  async componentDidMount() {
+    await this.receiveCategories();
+  }
+
   handleCheckBoxPressed = (val) => {
-    if (this.state.activeCheckbox.includes(val)) {
+    if (this.state.activeCheckbox.includes(val) && this.props.categories.find(v => v._id === val) === undefined) {
       this.setState(prevState => {
         return {
           activeCheckbox: prevState.activeCheckbox.filter((v) => {
-            return v.toLowerCase() !== val.toLowerCase();
+            return v !== val;
           })
         }
       });
     } else {
       this.setState(prevState => {
         return {
-          activeCheckbox: prevState.activeCheckbox.concat([val.toLowerCase()])
+          activeCheckbox: prevState.activeCheckbox.concat([val])
         }
       });
     }
   }
 
-  getData = () => {
-    return ["cold", "hot", "drinks", "snacks", "fast food", "dessert", "healthy", "russian", "serbian",
-    "nepali", "ukrainian", "italian", "french", "spanish", "fruits", "vegetables"];
-  } 
-
   getDataList = () => {
-    return this.getData().map((val, i) => (
-    <ListItem key={i} onPress={() => this.handleCheckBoxPressed(val)}>
+    return this.state.categories.map((val, i) => (
+    <ListItem key={val._id} onPress={() => this.handleCheckBoxPressed(val._id)}>
       <CheckBox 
-        checked={this.state.activeCheckbox.includes(val)}
-        onPress={() => this.handleCheckBoxPressed(val)}/>
+        checked={this.props.categories.find(v => v._id === val._id) !== undefined ||
+          this.state.activeCheckbox.includes(val._id)}
+        onPress={() => this.handleCheckBoxPressed(val._id)}/>
       <Body>
-        <Text>{val}</Text>
+        <Text>{val.name}</Text>
       </Body>
     </ListItem>
   ))};
@@ -112,28 +114,57 @@ export default class DishForm extends Component {
     callback(responseJson.data);
   }
 
+  receiveCategories = async () => {
+    query = `query { categories { _id, name }}`;
+    this.sendQuery(this.props.googleToken, query, (val) => {
+      console.log(val);
+      this.setState({
+        categories: val.categories
+      });
+    });
+  }
+
   createDish = async () => {
     this.setState({buttonsActive: false});
     query = `mutation { createDish (dishInput: {name: "${this.state.dishName}",` + 
       `description: "${this.state.dishDescription}",` +
       `price: ${Number.parseFloat(this.state.dishPrice)}, }) { _id }}`;
-    console.log(query);
-    this.sendQuery(this.props.googleToken, query, (val) => {
-      console.log(val);
-      this.props.close(1);
+    await this.sendQuery(this.props.googleToken, query, (dish) => {
+      if (this.state.activeCheckbox.length > 0) {
+        this.state.activeCheckbox.map((val, i) => {
+          catQuery = `mutation { addDishToCategory(dishId: \"${dish.createDish._id}\", categoryId: \"${val}\") { _id } }`
+          if (this.props.categories.find(v => v._id === val) == undefined) {
+            this.sendQuery(this.props.googleToken, catQuery, (val) => {
+              if (i === this.state.activeCheckbox.length - 1) this.props.close(1);
+            });
+            console.log(catQuery);
+          }
+        });
+      } else this.props.close(1);
     });
   }
 
   updateDish = async () => {
+    console.log("ACTIVE " + this.state.activeCheckbox);
     this.setState({buttonsActive: false});
     console.log("DishId " + this.state.dishId)
     query = `mutation { updateDish (dishId: \"${this.props.id}\", dishInput: {name: "${this.state.dishName}",` + 
       `description: "${this.state.dishDescription}",` +
       `price: ${Number.parseFloat(this.state.dishPrice)}, }) { _id }}`;
     console.log(query);
-    this.sendQuery(this.props.googleToken, query, (val) => {
-      console.log(val);
-      this.props.close(1);
+    
+    await this.sendQuery(this.props.googleToken, query, (dish) => {
+      if (this.state.activeCheckbox.length > 0) {
+        this.state.activeCheckbox.map((val, i) => {
+          catQuery = `mutation { addDishToCategory(dishId: \"${dish.updateDish._id}\", categoryId: \"${val}\") { _id } }`
+          if (this.props.categories.find(v => v._id === val) == undefined) {
+            this.sendQuery(this.props.googleToken, catQuery, (val) => {
+              if (i === this.state.activeCheckbox.length - 1) this.props.close(1);
+            });
+            console.log(catQuery);
+          }
+        });
+      } else this.props.close(1);
     });
   }
 

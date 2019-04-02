@@ -2,6 +2,8 @@ import React from "react";
 import { StyleSheet, Text, View, Image, Button, Platform } from "react-native";
 import ApolloClient from "apollo-boost";
 import { Container } from "native-base";
+import { Font } from "expo";
+import { Ionicons } from '@expo/vector-icons';
 
 import Logo from './src/Logo';
 import { LoggedInPage, LoginPage } from "./src/components/auth/Login";
@@ -18,13 +20,25 @@ export default class App extends React.Component {
       googleToken: "",
       status: "logged out",
       userType: 0,
-      email: ""
+      email: "",
+      loaded: false
     }
 
     this.restUrl = "https://deliveryclubsp.herokuapp.com/api/v1/graphql";
 
     const client = new ApolloClient({
       uri: this.restUrl
+    });
+  }
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      'Roboto': require('native-base/Fonts/Roboto.ttf'),
+      'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+      ...Ionicons.font,
+    });
+    this.setState({
+      loaded: true
     });
   }
 
@@ -134,15 +148,17 @@ export default class App extends React.Component {
   }
 
   render() {
-    return (
-      <Container>
-        {this.state.signedIn ? (
-          <DishList logOut={this.logOut} user={this.state.userType} email={this.state.email} url={this.restUrl} googleToken={this.state.googleToken} />
-        ) : (
-          <LoginPage signIn={this.signIn} />
-        )}
-      </Container>
-    )
+    if (this.state.loaded) {
+      return (
+        <Container>
+          {this.state.signedIn ? (
+            <DishList logOut={this.logOut} user={this.state.userType} email={this.state.email} url={this.restUrl} googleToken={this.state.googleToken} />
+          ) : (
+            <LoginPage signIn={this.signIn} />
+          )}
+        </Container>
+      )
+    } else return (null)
   }
 }
 
