@@ -66,24 +66,25 @@ export default class App extends React.Component {
   backendGoogleLogin = async (userType) => {
     try {
       loginQuery = userType === 0 ? "query {consumerLoginGoogle{user_id}}" : "query {producerLoginGoogle{user_id}}";
+      body = JSON.stringify({ query: loginQuery, token: this.state.googleToken });
+      console.log(body);
       const result = await fetch(this.restUrl, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            query: loginQuery,
-            token: this.state.googleToken
-          })
+          body: body
         }
       );
       
       responseJson = await result.json();
       if (result.ok) {
         this.setState({
-          status: userType === 0 ? responseJson.data.consumerLoginGoogle.user_id : responseJson.data.producerLoginGoogle.user_id
+          status: userType === 0 ? responseJson.data.consumerLoginGoogle.user_id : responseJson.data.producerLoginGoogle.user_id,
+          userType: userType
         });
+        console.log(this.state.status)
       } else {
         // probably can't sign in because not registered
         // try to register
@@ -98,23 +99,23 @@ export default class App extends React.Component {
   backendGoogleSignUp = async (userType) => {
     try {
       query = userType === 0 ? "mutation {createConsumerGoogle{_id}}" : "mutation {createProducerGoogle{_id}}";
+      body = JSON.stringify({ query: query, token: this.state.googleToken });
+      console.log(body);
       const result = await fetch(this.restUrl, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            query: query,
-            token: this.state.googleToken
-          })
+          body: body
         }
       );
       
       responseJson = await result.json();
       if (result.ok) {
         this.setState({
-          status: userType === 0 ? responseJson.data.createConsumerGoogle._id : responseJson.data.createProducerGoogle._id
+          status: userType === 0 ? responseJson.data.createConsumerGoogle._id : responseJson.data.createProducerGoogle._id,
+          userType: userType
         });
       } else {
         console.log(responseJson.errors);
@@ -135,16 +136,8 @@ export default class App extends React.Component {
   render() {
     return (
       <Container>
-        {/*<DishForm 
-          mode={1}
-          title="Grecha"
-          description="No way this is the best grecha you've ever tried. Buy now!"
-          price="135"
-        categories={["hot", "healthy", "russian"]} />*/}
-      {/*<View style={styles.container}>
-      <Logo/>*/}
         {this.state.signedIn ? (
-          <DishList email={this.state.email} url={this.restUrl} googleToken={this.state.googleToken} />
+          <DishList logOut={this.logOut} user={this.state.userType} email={this.state.email} url={this.restUrl} googleToken={this.state.googleToken} />
         ) : (
           <LoginPage signIn={this.signIn} />
         )}

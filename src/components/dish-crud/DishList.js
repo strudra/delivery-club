@@ -40,7 +40,7 @@ export default class DishList extends Component {
       responseJson = await result.json();
       if (result.ok) {
         console.log(responseJson.data.dishes);
-        this.setState({
+        await this.setState({
           list: responseJson.data.dishes
         });
       } else {
@@ -62,9 +62,13 @@ export default class DishList extends Component {
 
   getDishList = () => this.state.list.map((val, i) => (
     <ListItem key={i} onPress={() => {
+      console.log("clicked on dish");
       this.setState((prev) => {
-        chosen: prev.chosen === i ? -1 : i
+        return {
+          chosen: prev.chosen === i ? -1 : i
+        }
       });
+      console.log(this.state.chosen);
     }}>
       {this.state.chosen === i ? (
         <Body>
@@ -73,12 +77,12 @@ export default class DishList extends Component {
           <Text>Description: {val.description}</Text>
           <Text>Price: ${val.price}</Text>
           <Text>Creator: {val.creator.email}</Text>
-          {this.props.email === val.creator.email ? (
+          {this.props.email === val.creator.email && this.props.user === 1 ? (
             <Button onPress={() => this.editDish(val._id, val.name, val.description,
               val.price, [])}>
               <Text>Edit</Text>
             </Button>
-          ) : {}}
+          ) : (null)}
         </Body>
       ) : (
         <Body>
@@ -89,6 +93,7 @@ export default class DishList extends Component {
   ));
 
   editDish = (id, name, description, price, categories) => {
+    console.log("dishid from list " + id);
     this.setState({
       dishId: id,
       dishName: name,
@@ -108,47 +113,77 @@ export default class DishList extends Component {
     });
   }
 
+  closeForm = (update) => {
+    if (update === 0) {
+      this.setState({
+        form: 0,
+        loaded: 1
+      });
+    } else {
+      this.setState({
+        form: 0,
+        loaded: 0
+      });
+      this.getList()
+      .then(() => {
+        this.setState({
+          loaded: 1
+        });
+      });
+    }
+  }
+
   render() {
-    return (
-      this.state.form === 0 ? (
-      <Container>
-        <Header>
-          <Left />
-          <Body>
-            <Title>Dishes</Title>
-          </Body>
-          <Right>
-            <Button hasText transparent onPress={() => {
-              this.createDish();
-            }}>
+    if (this.state.form === 0) {
+      return (
+        <Container>
+      <Header>
+        <Left>
+        <Button hasText transparent disabled={this.state.loaded === 0}
+          onPress={() => { this.props.logOut() }}>
+          <Text>Logout</Text>
+        </Button>
+        </Left>
+        <Body>
+          <Title>Dishes</Title>
+        </Body>
+        <Right>
+          {this.props.user === 1 ? (
+            <Button hasText transparent disabled={this.state.loaded === 0}
+              onPress={() => { this.createDish() }}>
               <Text>Create</Text>
             </Button>
-          </Right>
-        </Header>
-        {this.state.loaded !== 0 && this.state.list.length === 0 ? (
-          <Container>
-            <Text style={{ flex:1, textAlign: "center" }}>No dishes</Text>
-          </Container>
-        ) : (
-          <Content>
-            <List>
-              {this.props.googleToken !== undefined ? 
-                this.state.loaded !== 0 ? 
-                this.getDishList() : (<Text style={{ flex:1, textAlign: "center" }}>loading...</Text>) : 
-                (<Text>no google token available</Text>)}
-            </List>
-          </Content>
-        )}
-      </Container>
+          ) : (null)}
+        </Right>
+      </Header>
+      {this.state.loaded !== 0 && this.state.list.length === 0 ? (
+        <Container>
+          <Text style={{ flex:1, textAlign: "center" }}>No dishes</Text>
+        </Container>
       ) : (
+        <Content>
+          <List>
+            {this.props.googleToken !== undefined ? 
+              this.state.loaded !== 0 ? 
+              this.getDishList() : (<Text style={{ flex:1, textAlign: "center" }}>loading...</Text>) : 
+              (<Text>no google token available</Text>)}
+          </List>
+        </Content>
+      )}
+      </Container>
+      )
+    } else {
+      return (
         <DishForm
-          mode={this.state.form === 1 ? 0 : 1}
-          googleToken={this.props.googleToken}
-          url={this.props.url}
-          title={this.state.dishName}
-          description={this.state.dishDescription}
-          price={this.state.dishName}
-          id={this.state.dishId}/>
-      ));
+        mode={this.state.form === 1 ? 0 : 1}
+        googleToken={this.props.googleToken}
+        url={this.props.url}
+        title={this.state.dishName}
+        description={this.state.dishDescription}
+        price={this.state.dishPrice.toString()}
+        id={this.state.dishId}
+        close={this.closeForm}/>
+      )
+    }
   }
 }
