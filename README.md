@@ -24,8 +24,8 @@ See deployment for notes on how to deploy the project on a live system.
 ```bash
 /
 ├─ .expo/
-│  ├─packager-info.json   # What is this for?
-│  ├─settings.json        # What is this for?
+│  ├─packager-info.json   
+│  ├─settings.json        
 |
 ├─assets/
 |  ├─icon.png
@@ -33,8 +33,8 @@ See deployment for notes on how to deploy the project on a live system.
 |  ├─splash.png
 |
 ├─ src/
-│  ├─ components/auth/ # ?
-│  │  ├─ Login.js      # ?
+│  ├─ components/auth/ 
+│  │  ├─ Login.js      
 |  ├─Logo.js  
 │    
 ├─ .eslintrc.json    
@@ -56,6 +56,6 @@ See deployment for notes on how to deploy the project on a live system.
   ## Frontend Developers 
   **Ezio Thapaliya, Vladislav Smirnov**
 # License
-  Write Something Here.
+  MIT
 # Acknowledgment
   Thank you Innopolis University and Software project teaching team.
