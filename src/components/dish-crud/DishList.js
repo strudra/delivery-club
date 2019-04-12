@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { Container, Header, Content, Body, Title, Button, List, Text, ListItem, CheckBox, Right, Left } from 'native-base';
 
 import DishForm from "./DishForm";
+import CartView from '../cart/CartView';
 
 export default class DishList extends Component {
 	constructor(props) {
@@ -17,7 +18,8 @@ export default class DishList extends Component {
       dishDescription: "",
       dishPrice: 0,
       dishId: "",
-      categories: []
+      categories: [],
+      cartList: [],
     };
   }
   
@@ -27,7 +29,6 @@ export default class DishList extends Component {
         query: "query {dishes{ _id name description price categories {name, _id} creator {email} }}",
         token: this.props.googleToken
       });
-      console.log(body);
       const result = await fetch(this.props.url, {
           method: 'POST',
           headers: {
@@ -40,7 +41,6 @@ export default class DishList extends Component {
       
       responseJson = await result.json();
       if (result.ok) {
-        console.log(responseJson.data.dishes);
         await this.setState({
           list: responseJson.data.dishes
         });
@@ -63,13 +63,11 @@ export default class DishList extends Component {
 
   getDishList = () => this.state.list.map((val, i) => (
     <ListItem key={i} onPress={() => {
-      console.log("clicked on dish");
       this.setState((prev) => {
         return {
           chosen: prev.chosen === i ? -1 : i
         }
       });
-      console.log(this.state.chosen);
     }}>
       {this.state.chosen === i ? (
         <Body>
@@ -85,6 +83,12 @@ export default class DishList extends Component {
               <Text>Edit</Text>
             </Button>
           ) : (null)}
+          {this.props.user === 0 ? (
+            <Button success onPress={() => this.addDishToCard(val._id, val.name, val.description,
+              val.price, val.categories)}>
+              <Text>Add to Cart</Text>
+            </Button>
+          ) : (null)}
         </Body>
       ) : (
         <Body>
@@ -93,6 +97,34 @@ export default class DishList extends Component {
       )}
     </ListItem>
   ));
+
+  addDishToCard = (id, name, description, price) => {
+    this.setState((prev) => {
+      let ind = prev.cartList.findIndex(val => val.id === id);
+      if (ind >= 0) {
+        prev.cartList[ind].quantity += 1;
+        return {
+          cartList: prev.cartList,
+        }
+      } else {
+        return {
+          cartList: prev.cartList.concat({
+            id: id, 
+            name: name, 
+            description: description, 
+            price: price,
+            quantity: 1,
+          })
+        }
+      }
+    });
+  }
+
+  goToCart = () => {
+    this.setState({
+      form: 3
+    });
+  }
 
   editDish = (id, name, description, price, categories) => {
     console.log("dishid from list " + id);
@@ -120,7 +152,8 @@ export default class DishList extends Component {
 
   update = () => {
     this.setState({
-      loaded: 0
+      loaded: 0,
+      cartList: []
     });
     this.getList()
     .then(() => {
@@ -145,6 +178,13 @@ export default class DishList extends Component {
     }
   }
 
+  closeCart = (cartState) => {
+    this.setState({
+      cartList: cartState,
+      form: 0
+    });
+  }
+
   render() {
     if (this.state.form === 0) {
       return (
@@ -165,7 +205,12 @@ export default class DishList extends Component {
               onPress={() => { this.createDish() }}>
               <Text>Create</Text>
             </Button>
-          ) : (null)}
+          ) : (
+            <Button hasText transparent disabled={this.state.loaded === 0}
+              onPress={() => { this.goToCart() }}>
+              <Text>Cart</Text>
+            </Button>
+          )}
         </Right>
       </Header>
       {this.state.loaded !== 0 && this.state.list.length === 0 ? (
@@ -191,7 +236,7 @@ export default class DishList extends Component {
       </View>
       </Container>
       )
-    } else {
+    } else if (this.state.form === 1 || this.state.form === 2) {
       return (
         <DishForm
         mode={this.state.form === 1 ? 0 : 1}
@@ -203,6 +248,13 @@ export default class DishList extends Component {
         id={this.state.dishId}
         close={this.closeForm}
         categories={this.state.categories}/>
+      )
+    } else if (this.state.form === 3) {
+      return (
+        <CartView
+          items={this.state.cartList}
+          close={this.closeCart}
+        />
       )
     }
   }

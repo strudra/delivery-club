@@ -1,13 +1,11 @@
 import React from "react";
-import { StyleSheet, Text, View, Image, Button, Platform } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import ApolloClient from "apollo-boost";
 import { Container } from "native-base";
 import { Font } from "expo";
 import { Ionicons } from '@expo/vector-icons';
 
-import Logo from './src/Logo';
-import { LoggedInPage, LoginPage } from "./src/components/auth/Login";
-import DishForm from "./src/components/dish-crud/DishForm"
+import { LoginPage } from "./src/components/auth/Login";
 import DishList from "./src/components/dish-crud/DishList"
 
 export default class App extends React.Component {
@@ -26,9 +24,9 @@ export default class App extends React.Component {
 
     this.restUrl = "https://deliveryclubsp.herokuapp.com/api/v1/graphql";
 
-    const client = new ApolloClient({
-      uri: this.restUrl
-    });
+    // const client = new ApolloClient({
+    //   uri: this.restUrl
+    // });
   }
 
   async componentDidMount() {
@@ -67,7 +65,6 @@ export default class App extends React.Component {
           googleToken: result.idToken,
           email: result.user.email
         });
-        console.log(result);
         this.backendGoogleLogin(userType);
       } else {
         console.log("cancelled")
@@ -81,7 +78,6 @@ export default class App extends React.Component {
     try {
       loginQuery = userType === 0 ? "query {consumerLoginGoogle{user_id}}" : "query {producerLoginGoogle{user_id}}";
       body = JSON.stringify({ query: loginQuery, token: this.state.googleToken });
-      console.log(body);
       const result = await fetch(this.restUrl, {
           method: 'POST',
           headers: {
@@ -98,7 +94,6 @@ export default class App extends React.Component {
           status: userType === 0 ? responseJson.data.consumerLoginGoogle.user_id : responseJson.data.producerLoginGoogle.user_id,
           userType: userType
         });
-        console.log(this.state.status)
       } else {
         // probably can't sign in because not registered
         // try to register
@@ -114,7 +109,6 @@ export default class App extends React.Component {
     try {
       query = userType === 0 ? "mutation {createConsumerGoogle{_id}}" : "mutation {createProducerGoogle{_id}}";
       body = JSON.stringify({ query: query, token: this.state.googleToken });
-      console.log(body);
       const result = await fetch(this.restUrl, {
           method: 'POST',
           headers: {
@@ -161,21 +155,3 @@ export default class App extends React.Component {
     } else return (null)
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#8BC34A",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column"
-  },
-  image: {
-    width: 150,
-    height: 150,
-    borderColor: "rgba(0,0,0,0.2)",
-    borderWidth: 3,
-    borderRadius: 50,
-    marginBottom: 30
-  }
-});
