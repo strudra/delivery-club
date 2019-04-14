@@ -13,8 +13,10 @@ export default class CartItem extends Component {
 
   render(props) {
     return (
-      <ListItem>
+      <ListItem style = {styles.container}>
         <Text>{this.state.data.name}</Text>
+
+        {/* <Container style = {{ width: "25%", flex:1, flexDirection: "row"}}> */}
         <Button rounded light onPress={() => this.props.remove(this.state.data.id)}
           style={styles.roundButton}>
           <Text style={styles.buttonText}>-</Text>
@@ -28,19 +30,34 @@ export default class CartItem extends Component {
           style={styles.roundButton}>
           <Text style={styles.buttonText}>×</Text>
         </Button>
+{/* </Container> */}
       </ListItem>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  roundButton: {
-    width: 32,
-    height: 32,
-    margin: 4,
-  },
-  buttonText: {
+ container: {
     flex: 1,
-    textAlign: "center"
+    flexDirection: "row",
+    justifyContent: 'flex-start',
+    
+  },
+
+
+ roundButton: {
+    
+    
+    margin: 4,
+    // width: 32,
+    // height: 32,
+    textAlign: "center",
+    
+     
+    // position: 'absolute',
+    // right: 30   
+    
+    
   }
+  
 });
