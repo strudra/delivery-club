@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ImageBackground, TouchableOpacity } from 'react-native';
 import { Container, Text, Button } from 'native-base';
 
 const styles = StyleSheet.create({
@@ -10,8 +10,11 @@ const styles = StyleSheet.create({
   },
   header: {
     textAlign: 'center',
-    fontSize: 25,
-    marginBottom: 20
+    fontSize: 35,
+    fontWeight: '700',
+    marginBottom: 20,
+    color: "white"
+
   },
   subtitle: {
     textAlign: 'center',
@@ -37,13 +40,15 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    backgroundColor: '#8BC34A'
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    
   },
   button: {
     margin: 5,
     width: '100%',
     alignSelf: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: 20
   },
   buttonContainer: {
     width: '70%',
@@ -54,6 +59,20 @@ const styles = StyleSheet.create({
     flex: 1
   }
 });
+
+class BackgroundImage extends Component{
+
+    render() {
+        return(
+            <ImageBackground source={require("./pizza.jpg")} style = {{ flex:1, width:null, height:null, resizeMode:"cover" }}>
+                
+               { this.props.children } 
+                
+            </ImageBackground>
+        )
+    }
+
+}
 
 class StylizedButton extends Component {
   constructor(props) {
@@ -75,6 +94,7 @@ class LoginPage extends Component {
   
   render() {
     return (
+      <BackgroundImage>
     <Container style={styles.loginPage}>
       <Text style={styles.header}>Delivery Club</Text>
       <View style={styles.buttonContainer}>
@@ -86,6 +106,7 @@ class LoginPage extends Component {
         </Button>
       </View>
     </Container>
+    </BackgroundImage>
   )};
 };
 

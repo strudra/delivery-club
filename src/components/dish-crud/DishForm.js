@@ -90,7 +90,6 @@ export default class DishForm extends Component {
         query: query,
         token: token
       });
-      console.log(body);
       const result = await fetch(this.props.url, {
           method: 'POST',
           headers: {
@@ -102,9 +101,8 @@ export default class DishForm extends Component {
       );
       
       responseJson = await result.json();
-      if (result.ok) {
-        console.log(responseJson.data.dishes);
-      } else {
+      if (result.ok) { } 
+      else {
         console.log(responseJson.errors);
       }
     } catch (e) {
@@ -117,7 +115,6 @@ export default class DishForm extends Component {
   receiveCategories = async () => {
     query = `query { categories { _id, name }}`;
     this.sendQuery(this.props.googleToken, query, (val) => {
-      console.log(val);
       this.setState({
         categories: val.categories
       });
@@ -137,7 +134,6 @@ export default class DishForm extends Component {
             this.sendQuery(this.props.googleToken, catQuery, (val) => {
               if (i === this.state.activeCheckbox.length - 1) this.props.close(1);
             });
-            console.log(catQuery);
           }
         });
       } else this.props.close(1);
@@ -145,13 +141,10 @@ export default class DishForm extends Component {
   }
 
   updateDish = async () => {
-    console.log("ACTIVE " + this.state.activeCheckbox);
     this.setState({buttonsActive: false});
-    console.log("DishId " + this.state.dishId)
     query = `mutation { updateDish (dishId: \"${this.props.id}\", dishInput: {name: "${this.state.dishName}",` + 
       `description: "${this.state.dishDescription}",` +
       `price: ${Number.parseFloat(this.state.dishPrice)}, }) { _id }}`;
-    console.log(query);
     
     await this.sendQuery(this.props.googleToken, query, (dish) => {
       if (this.state.activeCheckbox.length > 0) {
@@ -161,7 +154,6 @@ export default class DishForm extends Component {
             this.sendQuery(this.props.googleToken, catQuery, (val) => {
               if (i === this.state.activeCheckbox.length - 1) this.props.close(1);
             });
-            console.log(catQuery);
           }
         });
       } else this.props.close(1);
@@ -171,9 +163,7 @@ export default class DishForm extends Component {
   removeDish = async () => {
     this.setState({buttonsActive: false});
     query = `mutation { removeDish (dishId: \"${this.props.id}\") { _id }}`;
-    console.log(query);
     this.sendQuery(this.props.googleToken, query, (val) => {
-      console.log(val);
       this.props.close(1);
     });
   }
