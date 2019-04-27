@@ -4,6 +4,7 @@ import { Container, Header, Content, Body, Title, Button, List, Text, ListItem, 
 
 import DishForm from "./DishForm";
 import CartView from '../cart/CartView';
+import SearchForm from './SearchForm';
 
 export default class DishList extends Component {
 	constructor(props) {
@@ -20,9 +21,82 @@ export default class DishList extends Component {
       dishId: "",
       categories: [],
       cartList: [],
+      search: "",
+      allCategories: [],
+      selectedCategories: []
     };
   }
   
+  sendQuery = async (token, query, callback) => {
+    try {
+      body = JSON.stringify({
+        query: query,
+        token: token
+      });
+      const result = await fetch(this.props.url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: body
+        }
+      );
+      
+      responseJson = await result.json();
+      if (result.ok) { } 
+      else {
+        console.log(responseJson.errors);
+      }
+    } catch (e) {
+      console.log("error", query, e);
+    }
+
+    callback(responseJson.data);
+  }
+
+  receiveCategories = async () => {
+    query = `query { categories { _id, name }}`;
+    await this.sendQuery(this.props.googleToken, query, (val) => {
+      this.setState({
+        allCategories: val.categories
+      });
+    });
+  }
+
+  filterDishes = async (categories, minPrice, maxPrice) => {
+    cats = categories.map(v => `"${v}"`);
+    console.log("NEW: " + cats);
+    console.log("OLD: " + categories);
+    query = `query {dishesFiltered(filterInput: {minPrice: ${minPrice}, maxPrice: ${maxPrice}, categoriesIds: [${cats}]}){ _id name description price categories {name, _id} creator {email} }}`;
+    console.log("QUERY " + query);
+    await this.sendQuery(this.props.googleToken, query, (val) => {
+      this.setState({
+        list: val.dishesFiltered
+      });
+    });
+  }
+
+  sortDishes = async (field) => {
+    dishes = []
+    switch (field) {
+      case 0:
+        dishes = this.state.list.sort((a, b) => a.name > b.name); break;
+      case 1:
+        dishes = this.state.list.sort((a, b) => a.description > b.description); break;
+      case 2:
+        dishes = this.state.list.sort((a, b) => a.price > b.price); break;
+      case 3:
+        dishes = this.state.list.sort((a, b) => a.creator > b.creator); break;
+      default:
+        return;
+    }
+-
+    this.setState({
+      list: dishes
+    });
+  }
+
   getList = async () => {
     try {
       body = JSON.stringify({
@@ -53,15 +127,11 @@ export default class DishList extends Component {
   }
 
   async componentDidMount() {
-    this.getList()
-    .then(() => {
-      this.setState({
-        loaded: 1
-      });
-    });
+    this.update();
   }
 
-  getDishList = () => this.state.list.map((val, i) => (
+  getDishList = () => this.state.list.filter((v) => 
+    v.name.toLowerCase().includes(this.state.search.toLowerCase())).map((val, i) => (
     <ListItem key={i} onPress={() => {
       this.setState((prev) => {
         return {
@@ -155,6 +225,7 @@ export default class DishList extends Component {
       loaded: 0,
       cartList: []
     });
+    this.receiveCategories().then(() => console.log("allCategories: " + this.state.allCategories));
     this.getList()
     .then(() => {
       this.setState({
@@ -213,6 +284,12 @@ export default class DishList extends Component {
           )}
         </Right>
       </Header>
+      <SearchForm 
+        onSearchChange={(val) => {this.setState({search: val})}}
+        categories={this.state.allCategories}
+        filterDishes={this.filterDishes}
+        sortDishes={this.sortDishes}
+        />
       {this.state.loaded !== 0 && this.state.list.length === 0 ? (
         <Container>
           <Text style={{ flex:1, textAlign: "center" }}>No dishes</Text>
