@@ -239,9 +239,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     margin: "5%",
+    borderRadius: 20,
   },
   button: {
-    flex: 1
+    flex: 1,
+    borderRadius: 20,
   },
   buttonText: {
     flex: 1,

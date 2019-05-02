@@ -7,6 +7,8 @@ import CartView from '../cart/CartView';
 import SearchForm from './SearchForm';
 
 export default class DishList extends Component {
+
+ 
 	constructor(props) {
 		super();
 		this.state = {
@@ -141,12 +143,12 @@ export default class DishList extends Component {
     }}>
       {this.state.chosen === i ? (
         <Body>
-          <Text>ID: {val._id}</Text>
+          
           <Text>Name: {val.name}</Text>
           <Text>Description: {val.description}</Text>
           <Text>Price: ${val.price}</Text>
           <Text>Creator: {val.creator.email}</Text>
-          <Text>Categories: {JSON.stringify(val.categories)}</Text>
+          {/* <Text>Categories: {JSON.stringify(val.categories)}</Text> */}
           {this.props.email === val.creator.email && this.props.user === 1 ? (
             <Button onPress={() => this.editDish(val._id, val.name, val.description,
               val.price, val.categories)}>
@@ -154,8 +156,8 @@ export default class DishList extends Component {
             </Button>
           ) : (null)}
           {this.props.user === 0 ? (
-            <Button success onPress={() => this.addDishToCard(val._id, val.name, val.description,
-              val.price, val.categories)}>
+            <Button style = {{borderRadius: 20}} success onPress={() => this.addDishToCard(val._id, val.name, val.description,
+              val.price, val.categories)} >
               <Text>Add to Cart</Text>
             </Button>
           ) : (null)}
@@ -337,15 +339,18 @@ export default class DishList extends Component {
     }
   }
 }
+ 
 
 const styles = StyleSheet.create({
   buttons: {
     flexDirection: "row",
     justifyContent: "space-evenly",
     margin: "5%",
+    borderRadius: 20,
   },
   button: {
-    flex: 1
+    flex: 1,
+    borderRadius: 20,
   },
   buttonText: {
     flex: 1,

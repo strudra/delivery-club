@@ -132,22 +132,22 @@ export default class SearchForm extends Component {
             return (
                 <View style={{height: "90%"}}>
                 <Content>
-                <Button onPress={() => this.applySort(0)}>
+                <Button style={{marginVertical: "5%", borderRadius: 20}} onPress={() => this.applySort(0)}>
                     <Text>
                         Name
                     </Text>
                 </Button>
-                <Button onPress={() => this.applySort(1)}>
+                <Button style={{marginVertical: "5%", borderRadius: 20}} onPress={() => this.applySort(1)}>
                     <Text>
                         Description
                     </Text>
                 </Button>
-                <Button onPress={() => this.applySort(2)}>
+                <Button style={{marginVertical: "5%", borderRadius: 20}} onPress={() => this.applySort(2)}>
                     <Text>
                         Price
                     </Text>
                 </Button>
-                <Button onPress={() => this.applySort(3)}>
+                <Button style={{marginVertical: "5%", borderRadius: 20}} onPress={() => this.applySort(3)}>
                     <Text>
                         Creator
                     </Text>
@@ -164,17 +164,17 @@ export default class SearchForm extends Component {
       return (
         <View>
             <View style={styles.searchContainer}>
-                <Button onPress={() => this.choose(0)}>
+                <Button style = {styles.niceButton} onPress={() => this.choose(0)}>
                     <Text>
                         Search
                     </Text>
                 </Button>
-                <Button onPress={() => this.choose(1)}>
+                <Button style = {styles.niceButton} onPress={() => this.choose(1)}>
                     <Text>
                         Filter
                     </Text>
                 </Button>
-                <Button onPress={() => this.choose(2)}>
+                <Button style = {styles.niceButton} onPress={() => this.choose(2)}>
                     <Text>
                         Sort
                     </Text>
@@ -191,6 +191,15 @@ export default class SearchForm extends Component {
 const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: "row",
-        justifyContent: "space-evenly"
+        justifyContent: "space-evenly",
+        marginVertical: "10%"
+    },
+    // sexyButton: {
+      
+    //   borderRadius: 20
+    // },
+    niceButton:{
+      borderRadius:20,
+      
     }
 });
