@@ -116,7 +116,7 @@ export default class DishForm extends Component {
     query = `query { categories { _id, name }}`;
     this.sendQuery(this.props.googleToken, query, (val) => {
       this.setState({
-        categories: val.categories
+        items: val.categories
       });
     });
   }

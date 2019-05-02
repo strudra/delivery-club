@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from "react-native";
 import { Tabs, Tab, TabHeading, Container, Header, Content, Form, Item, Input, 
-Label, Body, Title, Button, Text, ListItem, CheckBox, Left, Right } from 'native-base';
+  Label, Body, Title, Button, Text, ListItem, CheckBox, Left, Right } from 'native-base';
 
 import CartItem from './CartItem';
 
@@ -9,7 +9,8 @@ export default class CartView extends Component {
   constructor(props) {
     super();
     this.state = {
-      items: props.items,
+      items: props.items === undefined ? [] : props.items,
+      inProcess: false
     };
   }
 
@@ -51,6 +52,56 @@ export default class CartView extends Component {
     });
   }
 
+  sendQuery = async (token, query, callback) => {
+    try {
+      body = JSON.stringify({
+        query: query,
+        token: token
+      });
+
+      console.log(body);
+
+      const result = await fetch(this.props.url, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: body
+        }
+      );
+      
+      responseJson = await result.json();
+      if (result.ok) { } 
+      else {
+        console.log(responseJson.errors);
+      }
+    } catch (e) {
+      console.log("error", query, e);
+    }
+
+    callback(responseJson.data);
+  }
+
+  closePlaceOrder = async (cartItems) => {
+    query = `mutation { createOrder(dishesIds: [${cartItems.toString()}]) { _id, totalCost }}`;
+    await this.sendQuery(this.props.googleToken, query, (val) => {
+      try {
+        var totalCost = val.dishesIds.totalCost;
+        this.setState({
+          items: []
+        });
+        alert(`You have been charged $${totalCost}.`);
+      } catch {
+        alert(`Could not place the order. Try again.`);
+      }
+
+      this.setState({
+        inProcess: false
+      });
+    });
+  }
+
   render(props) {
     return (
       <Container>
@@ -68,7 +119,34 @@ export default class CartView extends Component {
         <Content>
           { this.getItemList() }
         </Content>
+        <View style={styles.buttons}>
+          <Button bordered success style={styles.button} disabled={this.state.items.length === 0 || this.state.inProcess} 
+            onPress={() => {
+              this.setState({
+                inProcess: true
+              });
+              var items = this.state.items.map((val) => `"${val.id}"`);
+              this.closePlaceOrder(items);
+            }}>
+            <Text style={styles.buttonText}>Place Order</Text>
+          </Button>
+        </View>
       </Container>
     )
   }
 }
+
+const styles = StyleSheet.create({
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    margin: "5%",
+  },
+  button: {
+    flex: 1
+  },
+  buttonText: {
+    flex: 1,
+    textAlign: "center"
+  }
+});
