@@ -331,6 +331,7 @@ export default class DishList extends Component {
         <CartView
           items={this.state.cartList}
           close={this.closeCart}
+          googleToken={this.props.googleToken}
         />
       )
     }
